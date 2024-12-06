@@ -1,0 +1,36 @@
+﻿@model IEnumerable<DA.Models.Nhanhang>
+
+@{
+    ViewData["Title"] = "Quản lý nhãn hàng";
+}
+</br>
+<h1><b>QUẢN LÝ NHÃN HÀNG</b></h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-outline-info">Thêm nhãn hàng</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Ten)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ten)
+                </td>
+                <td>
+                    <a asp-controller="Nhanhangs" asp-action="Edit" asp-route-id="@item.MaNh" class="btn btn-outline-warning">Sửa</a> |
+                    <a asp-controller="Nhanhangs" asp-action="Details" asp-route-id="@item.MaNh" class="btn btn-outline-success">Chi tiết</a> |
+                    <a asp-controller="Nhanhangs" asp-action="Delete" asp-route-id="@item.MaNh" class="btn btn-outline-danger">Xóa</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
