@@ -16,6 +16,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<IPasswordHasher<Khachhang>, PasswordHasher<Khachhang>>();
+builder.Services.AddSingleton<IPasswordHasher<Nhanvien>, PasswordHasher<Nhanvien>>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(option =>
 {

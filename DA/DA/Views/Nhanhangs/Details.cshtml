@@ -1,13 +1,14 @@
 ﻿@model DA.Models.Nhanhang
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết nhãn hàng";
 }
+</br>
 
-<h1>Details</h1>
+<h1>CHI TIẾT</h1>
 
 <div>
-    <h4>Nhanhang</h4>
+    <h4>Nhãn hàng</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
@@ -19,8 +20,9 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaNh">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model?.MaNh" class="btn btn-outline-warning">Sửa</a>
+    <a asp-action="Index" class="btn btn-outline-info">Quay lại</a>
+    @* <a asp-action="Index">Quay lại</a> *@
 </div>
 @section Scripts {
     @{

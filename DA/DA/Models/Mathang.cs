@@ -38,6 +38,7 @@ public partial class Mathang
     public string? HinhAnh { get; set; }
 
     [Column("MaNH")]
+    [Display(Name = "Nhãn hàng")]
     public int MaNh { get; set; }
 
     [Display(Name = "Lượt xem")]
@@ -53,4 +54,5 @@ public partial class Mathang
     [ForeignKey("MaNh")]
     [InverseProperty("Mathangs")]
     public virtual Nhanhang MaNhNavigation { get; set; } = null!;
+
 }

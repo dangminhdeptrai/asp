@@ -1,14 +1,15 @@
 ﻿@model DA.Models.Nhanhang
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Xóa nhãn hàng";
 }
+</br>
 
-<h1>Delete</h1>
+<h1>XÓA</h1>
 
-<h3>Are you sure you want to delete this?</h3>
+<h3>Bạn có chắc chắn muốn xóa nhãn hàng này?</h3>
 <div>
-    <h4>Nhanhang</h4>
+    <h4>Nhãn hàng</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
@@ -21,7 +22,8 @@
 
     <form asp-action="Delete">
         <input type="hidden" asp-for="MaNh" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <input type="submit" value="Xóa" class="btn btn-danger" />
+        <input asp-action="Index" type="submit" value="Quay lại" class="btn btn-info" />
+        @* <a asp-action="Index">Quay lại</a> *@
     </form>
 </div>

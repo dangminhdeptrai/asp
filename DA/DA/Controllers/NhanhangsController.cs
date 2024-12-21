@@ -20,9 +20,22 @@ namespace DA.Controllers
         }
 
         // GET: Nhanhangs
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string NhanHang = "")
         {
-            return View(await _context.Nhanhangs.ToListAsync());
+            List<Nhanhang> nhanhangs;
+            if (NhanHang != "" && NhanHang != null)
+            {
+                nhanhangs = _context.Nhanhangs.Where(p => p.Ten.Contains(NhanHang)).ToList();
+            }
+            else
+            {
+                nhanhangs = _context.Nhanhangs.ToList();
+            }
+            //var applicationDbContext = _context.Mathangs.Include(m => m.MaNhNavigation);
+            //GetData();
+            //return View(await applicationDbContext.ToListAsync());
+            return View(nhanhangs);
+            //return View(await _context.Nhanhangs.ToListAsync());
         }
 
         // GET: Nhanhangs/Details/5

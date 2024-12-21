@@ -13,9 +13,11 @@ public partial class Khachhang
     [Column("MaKH")]
     public int MaKh { get; set; }
 
+    [Display(Name = "Tên")]
     [StringLength(100)]
     public string Ten { get; set; } = null!;
 
+    [Display(Name = "Số điện thoại")]
     [StringLength(20)]
     [Unicode(false)]
     public string? DienThoai { get; set; }
@@ -24,6 +26,7 @@ public partial class Khachhang
     [Unicode(false)]
     public string? Email { get; set; }
 
+    [Display(Name = "Mật khẩu")]
     [StringLength(255)]
     [Unicode(false)]
     public string? MatKhau { get; set; }

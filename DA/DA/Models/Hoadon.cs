@@ -11,16 +11,20 @@ public partial class Hoadon
 {
     [Key]
     [Column("MaHD")]
+    [Display(Name = "Mã hóa đơn")]
     public int MaHd { get; set; }
 
+    [Display(Name = "Ngày")]
     [Column(TypeName = "datetime")]
     public DateTime? Ngay { get; set; }
 
+    [Display(Name = "Tổng tiền")]
     public int? TongTien { get; set; }
 
     [Column("MaKH")]
     public int MaKh { get; set; }
 
+    [Display(Name = "Trạng thái")]
     public int? TrangThai { get; set; }
 
     [InverseProperty("MaHdNavigation")]
@@ -28,5 +32,6 @@ public partial class Hoadon
 
     [ForeignKey("MaKh")]
     [InverseProperty("Hoadons")]
+    [Display(Name = "Khách hàng")]
     public virtual Khachhang MaKhNavigation { get; set; } = null!;
 }

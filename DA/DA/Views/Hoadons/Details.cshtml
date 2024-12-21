@@ -1,13 +1,14 @@
-﻿@model DA.Models.Hoadon
+﻿@* @model DA.Models.Hoadon
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết hóa đơn";
 }
 
-<h1>Details</h1>
+</br>
+<h1>CHI TIẾT</h1>
 
 <div>
-    <h4>Hoadon</h4>
+    <h4>Hóa đơn</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -32,11 +33,11 @@
             @Html.DisplayNameFor(model => model.MaKhNavigation)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaKhNavigation.MaKh)
+            @Html.DisplayFor(model => model.MaKhNavigation.Email)
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaHd">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Quay lại</a>
 </div>
+ *@

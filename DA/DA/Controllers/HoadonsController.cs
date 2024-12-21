@@ -20,10 +20,20 @@ namespace DA.Controllers
         }
 
         // GET: Hoadons
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string TenKH = "")
         {
-            var applicationDbContext = _context.Hoadons.Include(h => h.MaKhNavigation);
-            return View(await applicationDbContext.ToListAsync());
+            List<Hoadon> hoadons;
+            if (TenKH != "" && TenKH != null)
+            {
+                hoadons = _context.Hoadons.Where(p => p.MaKhNavigation.Ten.Contains(TenKH)).Include(h => h.MaKhNavigation).ToList();
+            }
+            else
+            {
+                hoadons = _context.Hoadons.Include(h => h.MaKhNavigation).ToList();
+            }
+            return View(hoadons);
+            //var applicationDbContext = _context.Hoadons.Include(h => h.MaKhNavigation);
+            //return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Hoadons/Details/5
@@ -155,8 +165,14 @@ namespace DA.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
-        private bool HoadonExists(int id)
+		void GetData()
+		{
+			if (HttpContext.Session.GetString("nhanvien") != "")
+			{
+				ViewBag.nhanvien = _context.Nhanviens.FirstOrDefault(k => k.Email == HttpContext.Session.GetString("nhanvien"));
+			}
+		}
+		private bool HoadonExists(int id)
         {
             return _context.Hoadons.Any(e => e.MaHd == id);
         }

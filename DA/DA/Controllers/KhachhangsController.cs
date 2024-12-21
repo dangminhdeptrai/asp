@@ -11,11 +11,13 @@ using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 using DA.Data;
 using DA.Models;
+using System.Drawing.Printing;
 
 namespace DA.Controllers
 {
     public class KhachhangsController : Controller
     {
+        private ApplicationDbContext db = new ApplicationDbContext();
         private readonly ApplicationDbContext _context;
         private readonly IPasswordHasher<Khachhang> _passwordHasher;
         public KhachhangsController(ApplicationDbContext context, IPasswordHasher<Khachhang> passwordHasher)
@@ -25,11 +27,58 @@ namespace DA.Controllers
         }
 
         // GET: Khachhangs
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string TuKhoa = "", int page = 1, int pageSize = 12)
         {
-            var applicationDbContext = _context.Mathangs.Include(m => m.MaNhNavigation);
+            List<Mathang> mathangs;
+            if (TuKhoa != "" && TuKhoa != null)
+            {
+                mathangs = _context.Mathangs.Where(p => p.Ten.Contains(TuKhoa) || p.MoTa.Contains(TuKhoa))
+                    .Skip((page - 1) * pageSize)  // Bỏ qua các trang trước
+                    .Take(pageSize)  // Lấy số sản phẩm theo pageSize
+                    .ToList(); ;
+            }
+            else
+            {
+                mathangs = _context.Mathangs
+                    .Skip((page - 1) * pageSize)  // Bỏ qua các trang trước
+                    .Take(pageSize)  // Lấy số sản phẩm theo pageSize.ToList();
+                    .ToList();
+            }
+            //var applicationDbContext = _context.Mathangs.Include(m => m.MaNhNavigation);
+            //GetData();
+            //return View(await applicationDbContext.ToListAsync());
+            // Lấy tổng số sản phẩm
+            var totalItems = await _context.Hoadons.CountAsync();
+
+            // Tính tổng số trang
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            // Gán các giá trị cho ViewBag
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPage = totalPages;
+            ViewBag.tukhoa = TuKhoa;
             GetData();
-            return View(await applicationDbContext.ToListAsync());
+            return View(mathangs);
+            //var applicationDbContext = _context.Mathangs.Include(m => m.MaNhNavigation);
+            //return View(await applicationDbContext.ToListAsync());
+        }
+        public async Task<IActionResult> ChiTietMatHang(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var mathang = await _context.Mathangs
+                .Include(m => m.MaNhNavigation)
+                .FirstOrDefaultAsync(m => m.MaMh == id);
+            if (mathang == null)
+            {
+                return NotFound();
+            }
+            mathang.LuotXem = mathang.LuotXem + 1;
+            _context.SaveChanges();
+            GetData();
+            return View(mathang);
         }
         public async Task<IActionResult> AddToCart(int id)
         {
@@ -46,10 +95,11 @@ namespace DA.Controllers
             }
             else
             {
+                TempData["ThemGioHang"] = "Sản phẩm đã được thêm vào giỏ hàng!";
                 cart.Add(new CartItem() { MatHang = mathang, SoLuong = 1 });
             }
             SaveCartSession(cart);
-            return RedirectToAction(nameof(ViewCart));
+            return RedirectToAction(nameof(Index));
         }
         public IActionResult ViewCart()
         {
@@ -59,6 +109,14 @@ namespace DA.Controllers
         private bool MathangExists(int id)
         {
             return _context.Mathangs.Any(e => e.MaMh == id);
+        }
+        private bool KhachhangTonTai(int id)
+        {
+            return _context.Khachhangs.Any(e => e.MaKh == id);
+        }
+        private Khachhang KhachhangExists(string email)
+        {
+            return _context.Khachhangs.FirstOrDefault(e => e.Email == email);
         }
         List<CartItem> GetCartItems()
         {
@@ -120,11 +178,19 @@ namespace DA.Controllers
         {
             // Xử lý thông tin khách hàng (trường hợp khách mới)
             var kh = new Khachhang();
-            kh.Email = email;
-            kh.Ten = hoten;
-            kh.DienThoai = dienthoai;
-            _context.Add(kh);
-            await _context.SaveChangesAsync();
+            if (KhachhangExists(email) == null)
+            {
+                kh.Email = email;
+                kh.Ten = hoten;
+                kh.DienThoai = dienthoai;
+                _context.Add(kh);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                kh = KhachhangExists(email);
+            }
+
             var hd = new Hoadon();
             hd.Ngay = DateTime.Now;
             hd.MaKh = kh.MaKh;
@@ -145,8 +211,15 @@ namespace DA.Controllers
                 ct.DonGia = i.MatHang.GiaBan;
                 ct.SoLuong = (short)i.SoLuong;
                 ct.ThanhTien = thanhtien;
+                var mh = _context.Mathangs.FirstOrDefault(m => m.MaMh == i.MatHang.MaMh);
+                if (mh != null)
+                {
+                    mh.LuotMua = mh.LuotMua + i.SoLuong ?? 1;
+                    mh.SoLuong = (short)(mh.SoLuong - i.SoLuong ?? 1);
+                }
                 _context.Add(ct);
             }
+            _context.SaveChanges();
             await _context.SaveChangesAsync();
 
             // cập nhật tổng tiền hóa đơn
@@ -193,6 +266,7 @@ namespace DA.Controllers
             kh.MatKhau = _passwordHasher.HashPassword(kh, matkhau); // mã hóa mk 
             if (ModelState.IsValid)
             {
+                TempData["DangKy"] = "Đăng ký thành công!";
                 _context.Add(kh);
                 await _context.SaveChangesAsync();
             }
@@ -211,6 +285,7 @@ namespace DA.Controllers
             {
                 // Đăng nhập thành công, thực hiện các hành động cần thiết
                 // Ví dụ: Ghi thông tin người dùng vào Session
+                TempData["DangNhapThanhCong"] = "Đăng nhập thành công!";
                 HttpContext.Session.SetString("khachhang", kh.Email);
                 return RedirectToAction(nameof(ThongTinKhachHang));
 
@@ -229,5 +304,152 @@ namespace DA.Controllers
             return RedirectToAction("Index");
         }
         // GET: Khachhangs/Details/5
+        public IActionResult DoiMatKhau()
+        {
+            GetData();
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> DoiMatKhau(string email, string matkhaucu, string matkhaumoi)
+        {
+            var kh = await _context.Khachhangs.FirstOrDefaultAsync(m => m.Email == email);
+            var result = _passwordHasher.VerifyHashedPassword(kh, kh.MatKhau, matkhaucu);
+            if (kh == null)
+            {
+                // Nếu không tìm thấy khách hàng, trả về lỗi hoặc redirect về trang thông báo lỗi
+                TempData["SuccessMessage"] = "Không tìm thấy khách hàng!";
+                GetData();
+                return View(); // Trả lại form với thông báo lỗi
+            }
+            if (string.IsNullOrWhiteSpace(matkhaucu))
+            {
+                TempData["TrongMatKhauCu"] = "Mật khẩu cũ không được bỏ trống!";
+                GetData();
+                return View(); // Trả lại form nếu mật khẩu mới trống
+            }
+            if (result == PasswordVerificationResult.Failed)
+            {
+                TempData["SaiMatKhau"] = "Mật khẩu cũ không chính xác!";
+                GetData();
+                return View(); // Trả lại form nếu mật khẩu cũ không đúng
+            }
+            if (string.IsNullOrWhiteSpace(matkhaumoi))
+            {
+                TempData["TrongMatKhauMoi"] = "Mật khẩu mới không được bỏ trống!";
+                GetData();
+                return View(); // Trả lại form nếu mật khẩu mới trống
+            }
+            // Mã hóa mật khẩu mới
+            var hashedPassword = _passwordHasher.HashPassword(kh, matkhaumoi);
+
+            // Cập nhật mật khẩu cho khách hàng
+            kh.MatKhau = hashedPassword;
+
+            // Kiểm tra tính hợp lệ của model trước khi lưu
+            if (ModelState.IsValid)
+            {
+                TempData["ThanhCong"] = "Đổi mật khẩu thành công!";
+                _context.Update(kh);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(ThongTinKhachHang));
+        }
+
+        public IActionResult CapNhatThongTin()
+        {
+            GetData();
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> CapNhatThongTin(string email, string hoten, string dienthoai)
+        {
+            // Tìm khách hàng theo email
+            var kh = await _context.Khachhangs.FirstOrDefaultAsync(m => m.Email == email);
+
+            // Kiểm tra xem khách hàng có tồn tại không
+            if (kh == null)
+            {
+                TempData["CapNhatTTThatBai"] = "Không tìm thấy khách hàng với email này!";
+                return RedirectToAction(nameof(ThongTinKhachHang));
+            }
+
+            kh.Email = email;
+            kh.Ten = hoten;
+            kh.DienThoai = dienthoai;
+
+            if (ModelState.IsValid)
+            {
+                _context.Update(kh);
+                await _context.SaveChangesAsync();
+                TempData["CapNhatTTThanhCong"] = "Đổi thông tin thành công!";
+            }
+
+            // Chuyển hướng về trang thông tin khách hàng
+            return RedirectToAction(nameof(ThongTinKhachHang));
+        }
+
+
+        public async Task<IActionResult> SanPhamBanChay(int page = 1, int pageSize = 12)
+        {
+            // Lấy tổng số sản phẩm
+            var totalItems = await _context.Mathangs.CountAsync();
+
+            // Tính tổng số trang
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            var sanPhamBanChay = await _context.Mathangs
+                .OrderByDescending(sp => sp.LuotMua)
+                .Skip((page - 1) * pageSize)  // Bỏ qua các trang trước
+                .Take(pageSize)  // Lấy số sản phẩm theo pageSize
+                .ToListAsync();
+
+            // Gán các giá trị cho ViewBag
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPage = totalPages;
+
+            GetData();
+            return View(sanPhamBanChay);
+        }
+
+        public async Task<IActionResult> GiaCaoThap(int page = 1, int pageSize = 12)
+        {
+            // Lấy tổng số sản phẩm
+            var totalItems = await _context.Mathangs.CountAsync();
+
+            // Tính tổng số trang
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            var sanPhamGiaCao = await _context.Mathangs
+                .OrderByDescending(sp => sp.GiaBan)
+                .Skip((page - 1) * pageSize)  // Bỏ qua các trang trước
+                .Take(pageSize)  // Lấy số sản phẩm theo pageSize
+                .ToListAsync();
+
+            // Gán các giá trị cho ViewBag
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPage = totalPages;
+
+            GetData();
+            return View(sanPhamGiaCao);
+        }
+
+        public async Task<IActionResult> GiaThapCao(int page = 1, int pageSize = 12)
+        {
+            // Lấy tổng số sản phẩm
+            var totalItems = await _context.Mathangs.CountAsync();
+
+            // Tính tổng số trang
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            var sanPhamGiaThap = await _context.Mathangs
+                .OrderBy(sp => sp.GiaBan)
+                .Skip((page - 1) * pageSize)  // Bỏ qua các trang trước
+                .Take(pageSize)  // Lấy số sản phẩm theo pageSize
+                .ToListAsync();
+
+            // Gán các giá trị cho ViewBag
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPage = totalPages;
+
+            GetData();
+            return View(sanPhamGiaThap);
+        }
     }
 }

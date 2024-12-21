@@ -1,0 +1,155 @@
+﻿@model IEnumerable<DA.Models.Mathang>
+
+@{
+    ViewData["Title"] = "Sản phẩm bán chạy";
+}
+
+<br>
+@if (TempData["SuaMH"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="suamhAlert">
+        @TempData["SuaMH"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+@if (TempData["ThemMH"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="themmhAlert">
+        @TempData["ThemMH"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+@if (TempData["XoaMH"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="xoamhAlert">
+        @TempData["XoaMH"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+@if (TempData["DNNhanVien"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="dnnvAlert">
+        @TempData["DNNhanVien"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    // Kiểm tra nếu thông báo thành công tồn tại
+    $(document).ready(function () {
+        // Set timeout để tự động ẩn alert sau 3 giây (3000ms)
+        window.setTimeout(function () {
+            $('.alert').fadeTo(500, 0).slideUp(500, function () {
+                $(this).remove(); // Loại bỏ alert khi đã ẩn
+            });
+        }, 3000); // 3000ms = 3 giây
+    });
+</script>
+
+<h1><b>SẢN PHẨM BÁN CHẠY</b></h1>
+<p>
+    <a asp-action="Create" class="btn btn-outline-info">Thêm mới sản phẩm</a>
+</p>
+<p>
+    <a asp-action="Index">Tất cả sản phẩm</a>
+</p>
+<br />
+<table class="table">
+    <thead>
+        <tr class="text-center">
+            <th>
+                @Html.DisplayNameFor(model => model.Ten)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GiaGoc)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GiaBan)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SoLuong)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MoTa)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HinhAnh)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LuotXem)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LuotMua)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MaNhNavigation)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ten)
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.GiaGoc)
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.GiaBan)
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.SoLuong)
+                </td>
+                <td style="display: -webkit-box; -webkit-line-clamp: 7; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.8; height: 13.5em;">
+                    @Html.DisplayFor(modelItem => item.MoTa)
+                </td>
+                <td class="text-center">
+                    <img src="~/images/products/@Html.DisplayFor(modelItem => item.HinhAnh)" width=100 />
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.LuotXem)
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.LuotMua)
+                </td>
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.MaNhNavigation.Ten)
+                </td>
+                <td>
+                    <a asp-controller="Mathangs" asp-action="Edit" asp-route-id="@item.MaMh" class="btn btn-outline-warning"><i class="fas fa-wrench"></i></a>&nbsp;
+                    <a asp-controller="Mathangs" asp-action="Details" asp-route-id="@item.MaMh" class="btn btn-outline-success"><i class="fas fa-circle-info"></i></a>&nbsp;
+                    <a asp-controller="Mathangs" asp-action="Delete" asp-route-id="@item.MaMh" class="btn btn-outline-danger"><i class="fas fa-trash"></i></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@{
+    var currentPage = ViewBag.CurrentPage ?? 1;
+    var totalPage = ViewBag.TotalPage ?? 1;
+}
+
+@if (currentPage > 1)
+{
+    <a href="@Url.Action("SanPhamBanChay", new { page = currentPage - 1 })">Trước</a>
+}
+<span>@currentPage / @totalPage</span>
+@if (currentPage < totalPage)
+{
+    <a href="@Url.Action("SanPhamBanChay", new { page = currentPage + 1 })">Sau</a>
+}
+<a asp-action="Index" class="btn btn-success align-content-center" style="float: right;">Quay lại trang tất cả sản phẩm</a>
+<a href="#top" class="btn btn-warning align-content-center" style="float: right;">Lên đầu trang</a>&nbsp;&nbsp;&nbsp;&nbsp;

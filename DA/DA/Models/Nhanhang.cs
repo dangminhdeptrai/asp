@@ -13,7 +13,8 @@ public partial class Nhanhang
     [Column("MaNH")]
     public int MaNh { get; set; }
 
-	[Display(Name = "Tên nhãn hàng")]
+    [Required(ErrorMessage = "Chưa nhập tên nhãn hàng")]
+    [Display(Name = "Tên nhãn hàng")]
 	[StringLength(100)]
     public string Ten { get; set; } = null!;
 

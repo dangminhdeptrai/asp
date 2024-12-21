@@ -3,12 +3,13 @@
 @{
     ViewData["Title"] = "Xóa mặt hàng";
 }
+<br>
 
 <h1>XÓA</h1>
 
+<h4>Mặt hàng</h4>
 <h3>Bạn có chắc chắn muốn xóa mặt hàng này?</h3>
 <div>
-    <h4>Mathang</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
@@ -69,7 +70,8 @@
 
     <form asp-action="Delete">
         <input type="hidden" asp-for="MaMh" />
-        <input type="submit" value="Xóa" class="btn btn-danger" /> |
-        <a asp-action="Index">Quay lại</a>
+        <input type="submit" value="Xóa" class="btn btn-danger" />
+        <input asp-action="Index" type="submit" value="Quay lại" class="btn btn-info" />
+        @* <a asp-action="Index">Quay lại</a> *@
     </form>
 </div>

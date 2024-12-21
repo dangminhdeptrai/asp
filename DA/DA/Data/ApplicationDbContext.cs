@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DA.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace DA.Data;

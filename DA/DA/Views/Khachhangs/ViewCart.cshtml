@@ -47,10 +47,11 @@
         }
         <tr>
             <td colspan="4" class="text-end">Thành tiền</td>
-            <td colspan="2"><strong class="textdanger">@(tongtien.ToString("N0")) đ</strong></td>
+            <td colspan="2"><strong class="text-danger">@(tongtien.ToString("N0")) đ</strong></td>
         </tr>
     </table>
     <div class="text-end">
+        <a class="btn btn-success" asp-action="Index">Tiếp tục mua hàng</a>
         <a class="btn btn-info" asp-action="CheckOut">Thanh toán</a>
     </div>
 }
