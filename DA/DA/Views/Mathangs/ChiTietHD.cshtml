@@ -27,7 +27,24 @@
             @Html.DisplayNameFor(model => model.TrangThai)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
+            @if (Model.TrangThai == 0)
+            {
+                <td>
+                    <div class="text-warning">Chưa thanh toán</div>
+                </td>
+            }
+            @if (Model.TrangThai == 1)
+            {
+                <td>
+                    <div class="text-success">Đã thanh toán</div>
+                </td>
+            }
+            @if (Model.TrangThai == 2)
+            {
+                <td>
+                    <div class="text-danger text-center">Đã hủy</div>
+                </td>
+            }
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.MaKhNavigation)

@@ -27,7 +27,44 @@ namespace DA.Controllers
         }
 
         // GET: Khachhangs
-        public async Task<IActionResult> Index(string TuKhoa = "", int page = 1, int pageSize = 12)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 12)
+        {
+            //List<Mathang> mathangs;
+            //if (TuKhoa != "" && TuKhoa != null)
+            //{
+            //    mathangs = _context.Mathangs.Where(p => p.Ten.Contains(TuKhoa) || p.MoTa.Contains(TuKhoa))
+            //        .Skip((page - 1) * pageSize)  // Bỏ qua các trang trước
+            //        .Take(pageSize)  // Lấy số sản phẩm theo pageSize
+            //        .ToList(); ;
+            //}
+            //else
+            //{
+            //    mathangs = _context.Mathangs
+            //        .Skip((page - 1) * pageSize)  // Bỏ qua các trang trước
+            //        .Take(pageSize)  // Lấy số sản phẩm theo pageSize.ToList();
+            //        .ToList();
+            //}
+            var applicationDbContext = _context.Mathangs.Include(m => m.MaNhNavigation)
+                .Skip((page - 1) * pageSize)  // Bỏ qua các trang trước
+                .Take(pageSize);
+            //GetData();
+            //return View(await applicationDbContext.ToListAsync());
+            // Lấy tổng số sản phẩm
+            var totalItems = await _context.Mathangs.CountAsync();
+
+            // Tính tổng số trang
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            // Gán các giá trị cho ViewBag
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPage = totalPages;
+            //ViewBag.tukhoa = TuKhoa;
+            GetData();
+            //return View(mathangs);
+            //var applicationDbContext = _context.Mathangs.Include(m => m.MaNhNavigation);
+            return View(await applicationDbContext.ToListAsync());
+        }
+
+        public async Task<IActionResult> TimKiemMatHang(string TuKhoa = "", int page = 1, int pageSize = 12)
         {
             List<Mathang> mathangs;
             if (TuKhoa != "" && TuKhoa != null)
@@ -35,7 +72,15 @@ namespace DA.Controllers
                 mathangs = _context.Mathangs.Where(p => p.Ten.Contains(TuKhoa) || p.MoTa.Contains(TuKhoa))
                     .Skip((page - 1) * pageSize)  // Bỏ qua các trang trước
                     .Take(pageSize)  // Lấy số sản phẩm theo pageSize
-                    .ToList(); ;
+                    .ToList();
+                // Tính tổng số sản phẩm dựa trên kết quả tìm kiếm
+                var totalItems = await _context.Mathangs
+                    .Where(p => p.Ten.Contains(TuKhoa) || p.MoTa.Contains(TuKhoa))
+                    .CountAsync();
+                var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+                ViewBag.CurrentPage = page;
+                ViewBag.TotalPage = totalPages;
+                ViewBag.tukhoa = TuKhoa;
             }
             else
             {
@@ -43,19 +88,23 @@ namespace DA.Controllers
                     .Skip((page - 1) * pageSize)  // Bỏ qua các trang trước
                     .Take(pageSize)  // Lấy số sản phẩm theo pageSize.ToList();
                     .ToList();
+                // Tính tổng số sản phẩm(không lọc theo từ khóa)
+                var totalItems = await _context.Mathangs.CountAsync();
+                var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+                ViewBag.CurrentPage = page;
+                ViewBag.TotalPage = totalPages;
+                ViewBag.tukhoa = TuKhoa;
             }
-            //var applicationDbContext = _context.Mathangs.Include(m => m.MaNhNavigation);
+            //var applicationDbContext = _context.Mathangs.Include(m => m.MaNhNavigation)
+            //    .Skip((page - 1) * pageSize)  // Bỏ qua các trang trước
+            //    .Take(pageSize);
             //GetData();
             //return View(await applicationDbContext.ToListAsync());
             // Lấy tổng số sản phẩm
-            var totalItems = await _context.Hoadons.CountAsync();
+            //var totalItems = await _context.Hoadons.CountAsync();
 
             // Tính tổng số trang
-            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
             // Gán các giá trị cho ViewBag
-            ViewBag.CurrentPage = page;
-            ViewBag.TotalPage = totalPages;
-            ViewBag.tukhoa = TuKhoa;
             GetData();
             return View(mathangs);
             //var applicationDbContext = _context.Mathangs.Include(m => m.MaNhNavigation);
@@ -244,11 +293,35 @@ namespace DA.Controllers
             }
         }
 
-        public async Task<IActionResult> List(int id)
+        public async Task<IActionResult> List(int id, int page = 1, int pageSize = 12)
         {
-            var applicationDBcontext = _context.Mathangs.Where(m => m.MaNh == id).Include(m => m.MaNhNavigation);
+            var applicationDBcontext = _context.Mathangs.Where(m => m.MaNh == id)
+                .Include(m => m.MaNhNavigation)
+                .Skip((page - 1) * pageSize)  // Bỏ qua các trang trước
+                .Take(pageSize);
+            // Lấy tổng số sản phẩm
+            var totalItems = await _context.Mathangs
+                .Where(m => m.MaNh == id)  // Lọc theo MaNh
+                .CountAsync();
+
+            // Tính tổng số trang
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            // Gán các giá trị cho ViewBag
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPage = totalPages;
+            // Lấy tên nhà cung cấp từ bảng Nhanhangs
+            var nhanHang = await _context.Nhanhangs.FirstOrDefaultAsync(d => d.MaNh == id);
+            if (nhanHang != null)
+            {
+                ViewData["id"] = nhanHang.MaNh;
+                ViewData["tennhanhang"] = nhanHang.Ten;  // Truyền tên nhà cung cấp vào ViewData
+            }
+            else
+            {
+                ViewData["id"] = nhanHang.MaNh;
+                ViewData["tennhanhang"] = "Không tìm thấy nhà cung cấp";  // Nếu không tìm thấy, gán giá trị mặc định
+            }
             GetData();
-            ViewData["tennhanhang"] = _context.Nhanhangs.FirstOrDefault(d => d.MaNh == id).Ten;
             return View(await applicationDBcontext.ToListAsync());
         }
         public IActionResult Register()
@@ -263,6 +336,11 @@ namespace DA.Controllers
             kh.Ten = hoten;
             kh.DienThoai = dienthoai;
             kh.Email = email;
+            if (KhachhangExists(email) != null)
+            {
+                TempData["DangKyThatBai"] = "Email đã tồn tại!";
+                return RedirectToAction(nameof(Register));
+            }
             kh.MatKhau = _passwordHasher.HashPassword(kh, matkhau); // mã hóa mk 
             if (ModelState.IsValid)
             {
@@ -290,6 +368,10 @@ namespace DA.Controllers
                 return RedirectToAction(nameof(ThongTinKhachHang));
 
             }
+            else
+            {
+                TempData["DNKhachHangTB"] = "Tên đăng nhập hoặc mật khẩu không chính xác!";
+            }
             return RedirectToAction(nameof(Login));
         }
         public IActionResult ThongTinKhachHang()
@@ -299,9 +381,10 @@ namespace DA.Controllers
         }
         public IActionResult Signout()
         {
+            TempData["DangXuatThanhCong"] = "Đăng xuất thành công!";
             HttpContext.Session.SetString("khachhang", "");
             GetData();
-            return RedirectToAction("Index");
+            return RedirectToAction("Login");
         }
         // GET: Khachhangs/Details/5
         public IActionResult DoiMatKhau()
@@ -450,6 +533,56 @@ namespace DA.Controllers
 
             GetData();
             return View(sanPhamGiaThap);
+        }
+
+        public async Task<IActionResult> LichSuGiaoDich(int page = 1, int pageSize = 10)
+        {
+            // Tìm khách hàng theo email
+            //List<Hoadon> hoadons;
+            //if (TuKhoa != "" && TuKhoa != null)
+            //{
+            //    hoadons = _context.Hoadons.Where(p => p.MaKhNavigation.Ten.Contains(TuKhoa) || p.MaKhNavigation.Email.Contains(TuKhoa) || p.MaHd.ToString().Contains(TuKhoa))
+            //    .Include(h => h.MaKhNavigation)
+            //    .OrderByDescending(m => m.MaHd)
+            //    .ToList();
+            //}
+            //else
+            //{
+            //    hoadons = _context.Hoadons.Include(h => h.MaKhNavigation)
+            //    .OrderByDescending(m => m.MaHd)
+            //    .Skip((page - 1) * pageSize)  // Bỏ qua các trang trước
+            //    .Take(pageSize)  // Lấy số sản phẩm theo pageSize
+            //    .ToList();
+
+            //}
+
+            var email = HttpContext.Session.GetString("khachhang");
+
+            var applicationDbContext = _context.Hoadons
+                .Where(h => h.MaKhNavigation.Email == email)
+                .Include(h => h.MaKhNavigation)  // Bao gồm thông tin khách hàng
+                .OrderByDescending(h => h.MaHd);  // Sắp xếp theo MaHd giảm dần
+
+            //GetData();
+            //return View(await applicationDbContext.ToListAsync());
+            // Lấy tổng số sản phẩm
+            var totalItems = await applicationDbContext.CountAsync();
+
+            // Tính tổng số trang
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            var hoadonkh = await applicationDbContext
+                .Skip((page - 1) * pageSize)  // Bỏ qua các trang trước
+                .Take(pageSize)  // Lấy số hóa đơn theo pageSize
+                .ToListAsync();
+            // Gán các giá trị cho ViewBag
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPage = totalPages;
+            ViewBag.KhachHangEmail = email;
+            //ViewBag.tukhoa = TuKhoa;
+            GetData();
+            return View(hoadonkh);
+            //return View(hoadons);
         }
     }
 }

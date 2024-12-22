@@ -90,6 +90,12 @@
         <a style="font-size: 18px; color: #007bff; text-decoration: none; padding: 8px 12px; border-radius: 4px; transition: background-color 0.3s, color 0.3s;"
            onmouseover="this.style.color='#0056b3'; this.style.backgroundColor='#f0f0f0'; this.style.transform='scale(1.1)';"
            onmouseout="this.style.color='#007bff'; this.style.backgroundColor='transparent'; this.style.transform='scale(1)';"
+           href="@Url.Action("SanPhamBanChay", new { page = 1 })">
+            <i class="bi bi-chevron-double-left"></i>
+        </a>
+        <a style="font-size: 18px; color: #007bff; text-decoration: none; padding: 8px 12px; border-radius: 4px; transition: background-color 0.3s, color 0.3s;"
+           onmouseover="this.style.color='#0056b3'; this.style.backgroundColor='#f0f0f0'; this.style.transform='scale(1.1)';"
+           onmouseout="this.style.color='#007bff'; this.style.backgroundColor='transparent'; this.style.transform='scale(1)';"
            href="@Url.Action("SanPhamBanChay", new { page = currentPage - 1 })">
             <i class="bi bi-caret-left-fill"></i>
         </a>
@@ -110,6 +116,14 @@
         <a style="font-size: 18px; color: #007bff; text-decoration: none; padding: 8px 12px; border-radius: 4px; transition: background-color 0.3s, color 0.3s;"
            onmouseover="this.style.color='#0056b3'; this.style.backgroundColor='#f0f0f0'; this.style.transform='scale(1.1)';"
            onmouseout="this.style.color='#007bff'; this.style.backgroundColor='transparent'; this.style.transform='scale(1)';"
-           href="@Url.Action("SanPhamBanChay", new { page = currentPage + 1 })"><i class="bi bi-caret-right-fill"></i></a>
+           href="@Url.Action("SanPhamBanChay", new { page = currentPage + 1 })">
+            <i class="bi bi-caret-right-fill"></i>
+        </a>
+        <a style="font-size: 18px; color: #007bff; text-decoration: none; padding: 8px 12px; border-radius: 4px; transition: background-color 0.3s, color 0.3s;"
+           onmouseover="this.style.color='#0056b3'; this.style.backgroundColor='#f0f0f0'; this.style.transform='scale(1.1)';"
+           onmouseout="this.style.color='#007bff'; this.style.backgroundColor='transparent'; this.style.transform='scale(1)';"
+           href="@Url.Action("SanPhamBanChay", new { page = totalPage })">
+            <i class="bi bi-chevron-double-right"></i>
+        </a>
     }
 </div>
