@@ -584,5 +584,25 @@ namespace DA.Controllers
             return View(hoadonkh);
             //return View(hoadons);
         }
+        public async Task<IActionResult> ChiTietLichSuGiaoDich(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var hoadon = await _context.Hoadons
+                .Include(h => h.MaKhNavigation)
+                .Include(h => h.Cthoadons)
+                .ThenInclude(ct => ct.MaMhNavigation)
+                .FirstOrDefaultAsync(m => m.MaHd == id);
+            if (hoadon == null)
+            {
+                return NotFound();
+            }
+
+            GetData();
+            return View(hoadon);
+        }
     }
 }

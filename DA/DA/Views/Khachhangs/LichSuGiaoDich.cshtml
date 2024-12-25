@@ -8,7 +8,6 @@
     var currentPage = ViewBag.CurrentPage ?? 1;
     var totalPage = ViewBag.TotalPage ?? 1;
 }
-<br>
 <h1><b>LỊCH SỬ GIAO DỊCH CỦA KHÁCH HÀNG</b></h1>
 <table class="table">
     <thead>
@@ -59,7 +58,10 @@
                         <div class="text-danger text-center">Đã hủy</div>
                     </td>
                 }
-                @* @Html.DisplayFor(modelItem => item.TrangThai) *@
+                <td>
+                    @* @Html.DisplayFor(modelItem => item.TrangThai) *@
+                    <a asp-action="ChiTietLichSuGiaoDich" asp-route-id="@item.MaHd" class="btn btn-outline-success"><i class="fas fa-circle-info"></i></a>
+                </td>
             </tr>
         }
     </tbody>

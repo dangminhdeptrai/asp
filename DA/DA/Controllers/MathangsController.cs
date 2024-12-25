@@ -771,6 +771,8 @@ namespace DA.Controllers
 
             var hoadon = await _context.Hoadons
                 .Include(h => h.MaKhNavigation)
+                .Include(h => h.Cthoadons)
+                .ThenInclude(ct => ct.MaMhNavigation)
                 .FirstOrDefaultAsync(m => m.MaHd == id);
             if (hoadon == null)
             {
